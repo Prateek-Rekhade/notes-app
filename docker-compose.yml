@@ -1,0 +1,25 @@
+services:
+  db:
+    image: mongo:7
+    restart: always
+    volumes:
+      - dbdata:/data/db
+
+  backend:
+    build: ./backend
+    restart: always
+    environment:
+      - MONGO_URL=mongodb://db:27017/notesdb
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  dbdata:

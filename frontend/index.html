@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Notes App</title>
+  <style>
+    body { font-family: Arial; max-width: 500px; margin: 40px auto; }
+    li { margin: 8px 0; }
+    button { margin-left: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Notes App (Docker + AWS)</h1>
+  <input id="note" placeholder="Write a note">
+  <button onclick="addNote()">Add</button>
+  <ul id="list"></ul>
+
+  <script>
+    async function load() {
+      const res = await fetch('/api/notes');
+      const notes = await res.json();
+      document.getElementById('list').innerHTML = notes.map(n =>
+        `<li>${n.text}<button onclick="del('${n._id}')">Delete</button></li>`
+      ).join('');
+    }
+    async function addNote() {
+      const input = document.getElementById('note');
+      if (!input.value) return;
+      await fetch('/api/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: input.value })
+      });
+      input.value = '';
+      load();
+    }
+    async function del(id) {
+      await fetch('/api/notes/' + id, { method: 'DELETE' });
+      load();
+    }
+    load();
+  </script>
+</body>
+</html>
